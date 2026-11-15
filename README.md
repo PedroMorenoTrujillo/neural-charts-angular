@@ -15,6 +15,10 @@ Zoneless, OnPush and signals. SSR includes actual Angular-owned SVG and original
 
 Install with `npm install @neural-charts/angular`. npm resolves the compatible Web peer and its Core dependency. The application supplies compatible Angular Core and Common versions.
 
-To build the source for the published 1.0.0 release, use Node.js 22.22.3 or newer. Run `npm ci` and `npm run build`.
+## Zoom toolbar
+
+Use `ChartToolbarAction.Zoom` in `toolbar.actions` and configure the axes in `viewport.axes`. Import `ChartToolbarAction` and `ChartZoomPosition` from `@neural-charts/angular`. Set `viewport.zoom.position` to `ChartZoomPosition.Below` for a separate row, or keep the default position with the download buttons. The slider is optional. Enable it with `viewport.zoom.showSlider`.
+
+To build the source, use Node.js 22.22.3 or newer. Run `npm ci` and `npm run build`.
 
 Licensed under [MIT](./LICENSE).

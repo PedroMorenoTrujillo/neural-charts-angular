@@ -6,7 +6,7 @@ export { NeuralChart, NeuralCartesianChart } from './lib/charts';
 export {NeuralChartTitleTemplate,NeuralChartTooltipTemplate,NeuralChartLegendTemplate,NeuralChartAxisLabelTemplate,NeuralChartDataLabelTemplate} from '@neural-charts/angular/cartesian';
 export type {ChartTemplateContext} from '@neural-charts/angular/cartesian';
 export type {ChartLabelLayout,ChartPointStyle,ChartReferenceBandStyle} from '@neural-charts/web';
-export { ChartContentSlotName, ChartDownloadFormat, ChartDownloadMenuPosition, ChartToolbarAction, ChartToolbarPosition } from '@neural-charts/web';
+export { ChartContentSlotName, ChartDownloadFormat, ChartDownloadMenuPosition, ChartToolbarAction, ChartToolbarPosition, ChartZoomPosition } from '@neural-charts/web';
 export type {ChartContentPorts,ChartContentSlot,ChartContentContextMap,ChartContentContext,ChartContentKey,ChartRenderContext,ChartContentHost,ChartTitleContext,ChartAxisLabelContext,ChartDataLabelContext,ChartLegendContext,ChartTooltipContext,ChartTooltipRow} from '@neural-charts/web';
 export type { CartesianChartData } from '@neural-charts/web/cartesian';
 export { StaticChart } from './lib/server-chart';
