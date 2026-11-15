@@ -1,6 +1,6 @@
 export { NeuralCartesianChart } from './lib/cartesian-chart';
 export type { CartesianChartData } from '@neural-charts/web/cartesian';
-export { ChartDownloadFormat, ChartDownloadMenuPosition, ChartToolbarAction, ChartToolbarPosition } from '@neural-charts/web/cartesian';
+export { ChartDownloadFormat, ChartDownloadMenuPosition, ChartToolbarAction, ChartToolbarPosition, ChartZoomPosition } from '@neural-charts/web/cartesian';
 export type { ChartOptions, ChartZoomOptions } from '@neural-charts/web';
 export { NeuralChartTitleTemplate, NeuralChartTooltipTemplate, NeuralChartLegendTemplate, NeuralChartAxisLabelTemplate, NeuralChartDataLabelTemplate } from './lib/content-templates';
 export type { ChartTemplateContext } from './lib/content-templates';
