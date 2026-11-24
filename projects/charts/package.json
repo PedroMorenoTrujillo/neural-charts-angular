@@ -2,21 +2,10 @@
   "name": "@neural-charts/angular",
   "version": "1.1.0",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/PedroMorenoTrujillo/neural-charts-angular.git"
-  },
-  "homepage": "https://charts.neuralui.org/",
-  "bugs": {
-    "url": "https://github.com/PedroMorenoTrujillo/neural-charts-angular/issues"
-  },
-  "engines": {
-    "node": ">=22.22.3"
-  },
-  "sideEffects": false,
   "peerDependencies": {
     "@angular/common": "^22.2.3",
     "@angular/core": "^22.2.3",
-    "@neural-charts/web": "^1.1.0"
-  }
+    "@neural-charts/web": "^1.2.0"
+  },
+  "sideEffects": false
 }

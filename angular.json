@@ -23,6 +23,12 @@
             }
           },
           "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/charts/tsconfig.spec.json"
+          }
         }
       }
     }
