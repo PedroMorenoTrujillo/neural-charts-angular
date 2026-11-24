@@ -27,6 +27,9 @@
   "references": [
     {
       "path": "./projects/charts/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/charts/tsconfig.spec.json"
     }
   ]
 }
