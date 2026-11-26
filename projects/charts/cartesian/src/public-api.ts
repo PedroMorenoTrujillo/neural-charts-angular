@@ -7,5 +7,5 @@ export type { ChartTemplateContext } from './lib/content-templates';
 
 // Shared Angular declarations for the primary entry point.
 export { ChartHost as ɵChartHost, CHART_TEMPLATE as ɵCHART_TEMPLATE, CHART_STYLES as ɵCHART_STYLES } from './lib/chart-host';
-export { StaticSvg as ɵStaticSvg, SvgAttributes as ɵSvgAttributes, parseSvg as ɵparseSvg, SVG_TEMPLATE as ɵSVG_TEMPLATE, SVG_STYLES as ɵSVG_STYLES } from './lib/static-svg';
+export { StaticSvg as ɵStaticSvg, SvgAttributes as ɵSvgAttributes, parseSvg as ɵparseSvg, fallbackSvgNamespace as ɵfallbackSvgNamespace, SVG_TEMPLATE as ɵSVG_TEMPLATE, SVG_STYLES as ɵSVG_STYLES } from './lib/static-svg';
 export type { SvgNode as ɵSvgNode } from './lib/static-svg';

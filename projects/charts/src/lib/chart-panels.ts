@@ -8,12 +8,12 @@ import type {
   ChartPanelDiagnostic, ChartPanelsController, ChartPanelsData, ChartPanelsOptions,
   ChartPanelViewportChange, ChartPanelViewportValue, ChartPanelVisibilityChange,
 } from '@neural-charts/web/panels';
-import { StaticChart } from './server-chart';
+import { ChartFallback } from './server-chart';
 
 /** Angular transport for the browser panel owner, with a static SSR projection. */
 @Component({
   selector: 'nc-chart-panels',
-  imports: [StaticChart],
+  imports: [ChartFallback],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: ':host{display:block;min-width:0}.static-panels{display:grid;align-items:start;gap:16px}.static-panels[hidden]{display:none}',
   template: `
@@ -21,8 +21,8 @@ import { StaticChart } from './server-chart';
     @if (root(); as initial) {
       @if (initial.status === 'ok') {
         <div class="static-panels" [hidden]="mounted()" [style.grid-template-columns]="columns(initial.value.columns)">
-          @for (panel of initial.value.panels; track panel.id; let index = $index) {
-            <nc-static-chart [data]="panel.data" [options]="panel.options" [instanceId]="instanceId() + '-ssr-' + index" />
+          @for (panel of initial.value.panels; track panel.id) {
+            <nc-chart-fallback [data]="panel.data" [options]="panel.options" [instanceId]="instanceId()" />
           }
         </div>
       } @else if (!mounted()) {

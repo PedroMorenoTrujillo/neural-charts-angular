@@ -1,8 +1,25 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { DOCUMENT, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, Directive, ElementRef, inject, input, Renderer2, effect } from '@angular/core';
 
 export interface SvgNode { readonly tag: string; readonly attributes: Readonly<Record<string, string>>; readonly children: SvgNode[]; text: string; }
 const tags = new Set(['svg', 'title', 'desc', 'defs', 'clipPath', 'linearGradient', 'pattern', 'stop', 'rect', 'g', 'path', 'circle', 'polygon', 'text', 'tspan']);
+const lastFallbackId = new WeakMap<Document, number>();
+
+export function fallbackSvgNamespace(): string {
+  const document = inject(DOCUMENT);
+  const id = (lastFallbackId.get(document) ?? 0) + 1;
+  lastFallbackId.set(document, id);
+  // The period keeps internal SVG IDs outside the public instanceId grammar.
+  return `nc-ssr.${id}.`;
+}
+
+function scopeReference(name: string, value: string, prefix: string): string {
+  if (name === 'id') return prefix + value;
+  if (name === 'aria-labelledby' || name === 'aria-describedby') {
+    return value.split(/\s+/).filter(Boolean).map(id => prefix + id).join(' ');
+  }
+  return value.includes('url(#') ? value.replace(/url\(#([^()\s]+)\)/g, (_, id: string) => `url(#${prefix}${id})`) : value;
+}
 function decode(value: string): string {
   return value.replace(/&(?:amp|lt|gt|quot|apos|#39|#\d+|#x[\da-f]+);/gi, entity => {
     const named: Record<string, string> = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&apos;': "'", '&#39;': "'" };
@@ -10,7 +27,7 @@ function decode(value: string): string {
   });
 }
 /** Parses only our escaped SVG serializer, never consumer HTML. Angular owns every resulting node. */
-export function parseSvg(value: string): SvgNode | undefined {
+export function parseSvg(value: string, prefix?: string): SvgNode | undefined {
   const stack: SvgNode[] = []; let root: SvgNode | undefined;
   for (const token of value.matchAll(/<[^>]+>|[^<]+/g)) {
     const part = token[0];
@@ -21,7 +38,8 @@ export function parseSvg(value: string): SvgNode | undefined {
       for (const match of part.matchAll(/([\w:-]+)="([^"]*)"/g)) {
         const name = match[1]!, value = match[2]!;
         if (/^on|^(?:href|src)$/i.test(name)) throw Error('UNSAFE_SERIALIZED_ATTRIBUTE');
-        attributes[name] = decode(value);
+        const decoded = decode(value);
+        attributes[name] = prefix ? scopeReference(name, decoded, prefix) : decoded;
       }
       const node: SvgNode = { tag, attributes, children: [], text: '' };
       if (stack.length) stack.at(-1)!.children.push(node); else if (root) throw Error('MULTIPLE_SVG_ROOTS'); else root = node;
@@ -78,5 +96,6 @@ export const SVG_STYLES=':host{display:block;min-width:0}svg{display:block;max-w
 @Component({selector:'nc-static-svg',imports:[NgTemplateOutlet,SvgAttributes],changeDetection:ChangeDetectionStrategy.OnPush,template:SVG_TEMPLATE,styles:SVG_STYLES})
 export class StaticSvg{
   readonly serialized=input.required<import('@neural-charts/web').ChartResult<string>>();
-  protected readonly tree=computed(()=>{const result=this.serialized();return result.status==='ok'?parseSvg(result.value):undefined;});
+  private readonly namespace = fallbackSvgNamespace();
+  protected readonly tree=computed(()=>{const result=this.serialized();return result.status==='ok'?parseSvg(result.value,this.namespace):undefined;});
 }

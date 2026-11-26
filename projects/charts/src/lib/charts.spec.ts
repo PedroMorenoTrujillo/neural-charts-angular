@@ -24,6 +24,30 @@ class ContentHost{
 }
 @Component({imports:[NeuralCartesianChart,NeuralChartTooltipTemplate],template:`<nc-cartesian-chart [data]="data" [options]="options" [content]="content()" instanceId="invalid-content" (diagnostic)="diagnostics.push($event.reason)"><ng-template ncChartTooltip let-tip><strong>{{tip.text}}</strong></ng-template></nc-cartesian-chart>`})
 class InvalidContentHost{readonly data=data;readonly options={title:'Safe title'};readonly diagnostics:string[]=[];readonly content=signal<ChartContentPorts|undefined>(undefined);}
+
+@Component({
+  imports: [NeuralChart, NeuralCartesianChart],
+  template: `
+    <nc-chart [data]="series" [options]="options" instanceId="identity"
+      (diagnostic)="diagnostics.push($event.reason)" />
+    <nc-cartesian-chart [data]="series" [options]="options" instanceId="identity-ssr"
+      (diagnostic)="diagnostics.push($event.reason)" />
+    <nc-chart [data]="series" [options]="options" instanceId="identity"
+      (diagnostic)="diagnostics.push($event.reason)" />
+    <nc-chart [data]="series" [options]="options" [instanceId]="longId"
+      (diagnostic)="diagnostics.push($event.reason)" />
+  `,
+})
+class IdentityHost {
+  readonly series = {
+    type:'column',
+    axes:{x:{type:'category',values:[{id:'a',label:'A'}]},y:{type:'linear'}},
+    series:[{id:'s',name:'Source',data:[{id:'p',x:'a',y:10}]}],
+  } as const satisfies ChartData;
+  readonly options = {title:'Identity',description:'Original description',appearance:{series:[{id:'s',pattern:'diagonal',color:'#2c6ed5'}]}} as const;
+  readonly diagnostics: string[] = [];
+  readonly longId = 'a'.repeat(96);
+}
 let previous: PropertyDescriptor | undefined;
 let previousBBox:PropertyDescriptor|undefined;
 beforeEach(() => {
@@ -36,6 +60,29 @@ beforeEach(() => {
 });
 afterEach(() => { TestBed.resetTestingModule(); if (previous) Object.defineProperty(window, 'ResizeObserver', previous); else Reflect.deleteProperty(window, 'ResizeObserver');if(previousBBox)Object.defineProperty(SVGElement.prototype,'getBBox',previousBBox);else Reflect.deleteProperty(SVGElement.prototype,'getBBox'); });
 describe('NeuralChart ownership', () => {
+  it('isolates fallback SVG IDs from valid live IDs and repeated projections', async () => {
+    const fixture = TestBed.createComponent(IdentityHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const host: HTMLElement = fixture.nativeElement;
+    const charts = [...host.querySelectorAll('nc-chart, nc-cartesian-chart')];
+    expect(charts.map(chart => !!chart.querySelector('[data-nc-web]'))).toEqual([true, true, false, true]);
+    expect(fixture.componentInstance.diagnostics).toEqual(['DUPLICATE_INSTANCE_ID']);
+
+    const allIds = [...host.querySelectorAll('[id]')].map(node => node.id);
+    expect(new Set(allIds).size).toBe(allIds.length);
+    for (const chart of charts) {
+      const svg = chart.querySelector('[data-nc-ssr] svg')!;
+      expect(svg).not.toBeNull();
+      const ids = new Set([...svg.querySelectorAll('[id]')].map(node => node.id));
+      expect(svg.getAttribute('aria-labelledby')?.split(/\s+/).every(id => ids.has(id))).toBe(true);
+      const pattern = svg.querySelector('pattern')!;
+      expect(svg.querySelector('rect[fill="url(#' + pattern.id + ')"]')).not.toBeNull();
+      const clip = svg.querySelector('clipPath')!;
+      expect(svg.querySelector('[clip-path="url(#' + clip.id + ')"]')).not.toBeNull();
+    }
+    fixture.destroy();
+  });
   it('rejects root and nested content accessors before combining TemplateRefs and retains the last valid chart',async()=>{
     let reads=0;const rootGetter={};Object.defineProperty(rootGetter,'title',{enumerable:true,get(){reads++;throw Error('Unsafe root getter')}});
     const nested={title:Object.defineProperty({text:()=>''},'render',{enumerable:true,get(){reads++;throw Error('Unsafe nested getter')}})};

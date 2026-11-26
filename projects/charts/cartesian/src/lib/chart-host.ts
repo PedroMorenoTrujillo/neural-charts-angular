@@ -50,7 +50,7 @@ export const CHART_STYLES=':host{display:block;min-width:0}[data-nc-ssr]{font:14
 export abstract class ChartHost<T extends ChartData>{
   protected abstract readonly createController:(host:HTMLElement,data:T,options:ChartOptions,mount:ChartMountOptions)=>ChartResult<ChartController>;
   protected abstract readonly serialize:(data:T,options:ChartOptions,settings:SvgRenderOptions)=>ChartResult<string>;
-  protected readonly serverSvg=computed(()=>{const projection=this.ssrProjection();return this.serialize(projection.data,projection.options,{instanceId:this.instanceId()+'-ssr',...(projection.planningPorts?{ports:projection.planningPorts}:{}),...(projection.content!==undefined?{content:projection.content}:{})});});
+  protected readonly serverSvg=computed(()=>{const projection=this.ssrProjection();return this.serialize(projection.data,projection.options,{instanceId:this.instanceId(),...(projection.planningPorts?{ports:projection.planningPorts}:{}),...(projection.content!==undefined?{content:projection.content}:{})});});
   protected readonly serverTitle=computed(()=>{const p=this.ssrProjection();return formatChartTitle(p.data,p.options,p.content);});
 
   readonly data = input.required<T>();

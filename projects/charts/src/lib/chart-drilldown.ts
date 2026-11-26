@@ -8,12 +8,12 @@ import { createChartDrilldown, resolveChartDrilldownRoot } from '@neural-charts/
 import type {
   ChartDrilldownController, ChartDrilldownData, ChartDrilldownNavigation, ChartDrilldownOptions,
 } from '@neural-charts/web/drilldown';
-import { StaticChart } from './server-chart';
+import { ChartFallback } from './server-chart';
 
 /** The Web owner handles navigation. Angular supplies typed inputs, SSR and teardown. */
 @Component({
   selector: 'nc-chart-drilldown',
-  imports: [StaticChart],
+  imports: [ChartFallback],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: ':host{display:block;min-width:0}',
   template: `
@@ -21,7 +21,7 @@ import { StaticChart } from './server-chart';
     <div [hidden]="mounted()">
       @if (root(); as initial) {
         @if (initial.status === 'ok') {
-          <nc-static-chart [data]="initial.value.data" [options]="initial.value.options" [instanceId]="instanceId() + '-ssr'" />
+          <nc-chart-fallback [data]="initial.value.data" [options]="initial.value.options" [instanceId]="instanceId()" />
         } @else {
           <p role="alert">{{ initial.diagnostic.message }}</p>
         }
